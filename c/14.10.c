@@ -18,7 +18,7 @@ int main()
      printf("1.菜单a\n");
      printf("2.菜单b\n");
      printf("3.菜单c\n");
-     int choice;
+     char choice;
      scanf("%c",&choice);
      switch(choice)
      {
