@@ -53,5 +53,36 @@ void strbuf_reset(struct strbuf *sb)
 }
 void strbuf_grow(struct strbuf *sb, size_t extra)
 {
-    sb-buf = realloc(sb->buf,alloc+eatra);
+    sb->buf = realloc(sb->buf,sb->alloc+extra);
+}
+void strbuf_add(struct strbuf *sb, const void *data, size_t len)
+{
+    strbuf_grow(sb,len);
+    strcat(sb->buf,data);
+}
+void strbuf_addch(struct strbuf *sb, int c)
+{
+    strbuf_add(sb,c,1);
+}
+void strbuf_addstr(struct strbuf *sb, const char *s)
+{
+    
+    strbuf_add(sb,s,sizeof(s));
+
+}
+void strbuf_addbuf(struct strbuf *sb, const struct strbuf *sb2)
+{
+    strbuf_add(sb,sb2->buf,sb2->alloc);
+}
+void strbuf_setlen(struct strbuf *sb, size_t len)
+{
+    sb->len =len;
+}
+size_t strbuf_avail(const struct strbuf *sb)
+{
+    return (sb->alloc-sb->len);
+}
+void strbuf_insert(struct strbuf *sb, size_t pos, const void *data, size_t len)
+{
+  
 }
