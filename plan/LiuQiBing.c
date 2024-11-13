@@ -54,25 +54,32 @@ void strbuf_reset(struct strbuf *sb)
 void strbuf_grow(struct strbuf *sb, size_t extra)
 {
     sb->buf = realloc(sb->buf,sb->alloc+extra);
+    if(sb->buf == NULL)
+    {
+        perror("realloc failed");
+        exit(1);
+    }
+    sb->alloc += extra;
 }
 void strbuf_add(struct strbuf *sb, const void *data, size_t len)
 {
     strbuf_grow(sb,len);
-    strcat(sb->buf,data);
+    memcpy(sb->buf+sb->len,data,len);
+    sb->len+=len;
 }
 void strbuf_addch(struct strbuf *sb, int c)
 {
-    strbuf_add(sb,c,1);
+    strbuf_add(sb,&c,1);
 }
 void strbuf_addstr(struct strbuf *sb, const char *s)
 {
     
-    strbuf_add(sb,s,sizeof(s));
+    strbuf_add(sb,s,sizeof(s)-1);
 
 }
 void strbuf_addbuf(struct strbuf *sb, const struct strbuf *sb2)
 {
-    strbuf_add(sb,sb2->buf,sb2->alloc);
+    strbuf_add(sb,sb2->buf,sb2->len);
 }
 void strbuf_setlen(struct strbuf *sb, size_t len)
 {
@@ -84,5 +91,25 @@ size_t strbuf_avail(const struct strbuf *sb)
 }
 void strbuf_insert(struct strbuf *sb, size_t pos, const void *data, size_t len)
 {
-  
+  if(pos>sb->len)
+  return;
+  strbuf_grow(sb,len);
+  struct strbuf temp;
+  strbuf_init(&temp,sb->len-pos);
+  memcpy(temp.buf,sb->buf+pos,sb->len-pos);
+  strbuf_add(sb,data,len);
+  strbuf_addbuf(sb,&temp);
+  strbuf_release(&temp);
+
+}
+void strbuf_ltrim(struct strbuf *sb)
+{
+    int i=0;
+    while(sb->len!=0&&sb->buf[i]==' '||sb->buf[i]=='\t'||sb->buf[i]=='\n')
+    {
+        i++;
+        sb->len--;
+    }
+    for(int j=0;j<sb->len;j++)
+    sb->buf[j]=sb->buf[j+i];
 }
