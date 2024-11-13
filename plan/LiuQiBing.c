@@ -3,8 +3,8 @@ void strbuf_init(struct strbuf *sb, size_t alloc)
 {
     sb->len =0;
     sb->alloc = alloc;
-    sb->buf = malloc(alloc);
-    if(sb->buf == NULL)
+    sb->buf = (char*)malloc(alloc);
+    if(sb->buf == NULL||alloc==0)
     {
         perror("malloc failed");
         exit(1);
@@ -13,6 +13,16 @@ void strbuf_init(struct strbuf *sb, size_t alloc)
 void strbuf_attach(struct strbuf *sb, void *str, size_t len, size_t alloc)
 {
     strbuf_init(sb,alloc);
+    if(len>alloc)
+    {
+        perror("attach failed");
+        exit(1);
+    }
+    if(str==NULL)
+    {
+
+        exit(1);
+    }
     sb ->len =len;
     memcpy(sb->buf,str,len);
 
@@ -32,7 +42,10 @@ void strbuf_swap(struct strbuf *a, struct strbuf *b)
 char *strbuf_detach(struct strbuf *sb, size_t *sz)
 {    
     *sz = sb->alloc;
-    return  sb->buf;
+    char *result=sb->buf;
+    sb->buf=NULL;
+    
+    return  result;
 }
 int strbuf_cmp(const struct strbuf *first, const struct strbuf *second)
 {
@@ -47,13 +60,12 @@ int strbuf_cmp(const struct strbuf *first, const struct strbuf *second)
 void strbuf_reset(struct strbuf *sb)
 {
     sb->len =0;
-    sb->alloc = 0;
     free(sb->buf);
     sb->buf = NULL;
 }
 void strbuf_grow(struct strbuf *sb, size_t extra)
 {
-    sb->buf = realloc(sb->buf,sb->alloc+extra);
+    sb->buf = (char*)realloc(sb->buf,sb->alloc+extra);
     if(sb->buf == NULL)
     {
         perror("realloc failed");
@@ -74,7 +86,7 @@ void strbuf_addch(struct strbuf *sb, int c)
 void strbuf_addstr(struct strbuf *sb, const char *s)
 {
     
-    strbuf_add(sb,s,sizeof(s)-1);
+    strbuf_add(sb,s,strlen(s));
 
 }
 void strbuf_addbuf(struct strbuf *sb, const struct strbuf *sb2)
@@ -111,5 +123,38 @@ void strbuf_ltrim(struct strbuf *sb)
         sb->len--;
     }
     for(int j=0;j<sb->len;j++)
-    sb->buf[j]=sb->buf[j+i];
+    memmove(sb->buf,sb->buf+i,sb->len-i);
+}
+void strbuf_rtrim(struct strbuf *sb)
+{
+    int i=sb->len-1;
+    while(i>=0&&(sb->buf[i]==' '||sb->buf[i]=='\t'||sb->buf[i]=='\n'))
+    {
+        i--;
+        sb->len--;
+    }
+    if(sb->len<sb->alloc)
+    {
+    char *temp =(char*)realloc(sb->buf,sb->len);
+    if(temp==NULL)
+    {
+        perror("realloc failed");
+        exit(1);
+    }
+    sb->buf=temp;
+    sb->alloc=sb->len;
+    }
+}
+void strbuf_remove(struct strbuf *sb, size_t pos, size_t len)
+{
+    if(len>sb->len-pos)
+    len=sb->len-pos;
+    struct strbuf temp;
+    strbuf_init(&temp,len);
+    memmove(temp.buf,sb->buf+pos+len,sb->len-pos-len);
+    strbuf_release(&temp);
+}
+ssize_t strbuf_read(struct strbuf *sb, int fd, size_t hint)
+{
+    
 }
