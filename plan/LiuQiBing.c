@@ -156,5 +156,16 @@ void strbuf_remove(struct strbuf *sb, size_t pos, size_t len)
 }
 ssize_t strbuf_read(struct strbuf *sb, int fd, size_t hint)
 {
-    
+        while (1) {
+        // 确保有足够的空间来读取新数据
+        if (sb->len + grow_size > sb->alloc) {
+            size_t new_size = sb->alloc + grow_size;
+            char *new_buf = realloc(sb->buf, new_size);
+            if (!new_buf) {
+                return -1; // 内存分配失败
+            }
+            sb->buf = new_buf;
+            sb->alloc = new_size;
+        }
+
 }
