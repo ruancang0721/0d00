@@ -208,8 +208,7 @@ struct strbuf** strbuf_split_buf(const char* str, size_t len, int terminator, in
          {
             if(ilen==0)
             continue;
-            if(ilen>0)
-            {
+           
             struct strbuf* sb = (struct strbuf*)malloc(sizeof(struct strbuf));
             if(sb==NULL)
             {
@@ -219,16 +218,17 @@ struct strbuf** strbuf_split_buf(const char* str, size_t len, int terminator, in
                  }
                  free(result);
                  return NULL;
-
             }
 
             strbuf_init(sb,ilen+1);
-            strncpy(sb->buf,str+i-ilen,ilen);
+            strncpy(sb->buf,str+(i-ilen),ilen);
             sb->len = ilen;
             sb->buf[ilen] = '\0';
             result[count++]=sb;
             ilen = 0;
-           }
+            if(count>=max)
+            break;
+           
          }
          else
          {
@@ -252,32 +252,29 @@ struct strbuf** strbuf_split_buf(const char* str, size_t len, int terminator, in
         sb->buf[ilen] = '\0';
         sb->len = ilen;
         result[count++]=sb;
-        result[count]=NULL;
-
     }
     result[count]=NULL;
     return result;
 }
 bool strbuf_begin_judge(char* target_str, const char* str, int strlen)
 {
-    int istrlen = sizeof(*str)-1;
-    if(istrlen>strlen)
+    
+    int i=0;
+    while(str[i]!='\0')
     {
-        return false;
-    }
-    for(int i = 0;i<strlen;i++)
-    {
-        if(i = istrlen)
-        {
-         return true;
-        }
         if(str[i]!=target_str[i])
-        return false;
+        {
+            return false;
+        }
+        i++;
     }
     return true;
+}
+    
+  
     
 
-}
+
 char* strbuf_get_mid_buf(char* target_buf, int begin, int end, int len)
 {
    int ilen = end - begin;
