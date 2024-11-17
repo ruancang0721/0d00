@@ -191,7 +191,7 @@ int strbuf_getline(struct strbuf *sb, FILE *fp)
 }
 struct strbuf** strbuf_split_buf(const char* str, size_t len, int terminator, int max)
 {
-    if(str == NULL)
+    if(str == NULL||len==0)
     {
         return NULL;
     }
@@ -221,7 +221,7 @@ struct strbuf** strbuf_split_buf(const char* str, size_t len, int terminator, in
             }
 
             strbuf_init(sb,ilen+1);
-            strncpy(sb->buf,str+(i-ilen),ilen);
+            memcpy(sb->buf,str+(i-ilen),ilen);
             sb->len = ilen;
             sb->buf[ilen] = '\0';
             result[count++]=sb;
@@ -248,7 +248,7 @@ struct strbuf** strbuf_split_buf(const char* str, size_t len, int terminator, in
              return NULL;
         }
         strbuf_init(sb,ilen+1);
-        strncpy(sb->buf,str+(len-ilen),ilen);
+        memcpy(sb->buf,str+(len-ilen),ilen);
         sb->buf[ilen] = '\0';
         sb->len = ilen;
         result[count++]=sb;
@@ -259,16 +259,34 @@ struct strbuf** strbuf_split_buf(const char* str, size_t len, int terminator, in
 bool strbuf_begin_judge(char* target_str, const char* str, int strlen)
 {
     
-    int i=0;
-    while(str[i]!='\0')
-    {
-        if(str[i]!=target_str[i])
+if(target_str == NULL || str == NULL)
+{
+    return true;
+}
+     if(strlen<=0)
+     return false;
+     //abababababab\0 strlen
+     //ababab         i
+
+     int i = 0;
+     while(str[i]!='\0')
+     {
+        i++;
+     }
+     if(i>strlen)
+     {
+        return false;
+     }
+     else
+     {
+        for(int j=0;j<i;j++)
         {
+            if(str[j]!=target_str[j])
             return false;
         }
-        i++;
-    }
-    return true;
+        return true;
+     }
+
 }
     
   
