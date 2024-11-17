@@ -1,24 +1,29 @@
 #include "strbuf.h"
 void strbuf_init(struct strbuf *sb, size_t alloc)
 {
+  
     sb->len =0;
     sb->alloc = alloc;
     sb->buf = (char*)malloc(alloc);
-    if(sb->buf == NULL)
+          if(sb->buf == NULL)
     {
        fprintf(stderr,"NULL");
        return;
     }
+
 }
 void strbuf_attach(struct strbuf *sb, void *str, size_t len, size_t alloc)
 {
-     strbuf_init(sb,alloc);
-        if(str==NULL)
+       if(str==NULL)
     {
       fprintf(stderr,"NULL");
         return;
     }
    
+    strbuf_release(sb);
+    
+     
+     
     if(len>alloc)
     {
         fprintf(stderr,"len>alloc");
@@ -29,12 +34,14 @@ void strbuf_attach(struct strbuf *sb, void *str, size_t len, size_t alloc)
     sb ->len =len;
     sb->buf[len] = '\0';
     sb->alloc = alloc;
+    
 }
 void strbuf_release(struct strbuf *sb)
-{
-    free(sb->buf);
-    sb->buf = NULL;
-
+{   
+    
+        free(sb->buf);
+        sb->buf = NULL;
+    
 }
 void strbuf_swap(struct strbuf *a, struct strbuf *b)
 {
@@ -63,8 +70,7 @@ int strbuf_cmp(const struct strbuf *first, const struct strbuf *second)
 void strbuf_reset(struct strbuf *sb)
 {
     sb->len =0;
-    free(sb->buf);
-    sb->buf = NULL;
+ strbuf_release(sb);
 }
 void strbuf_grow(struct strbuf *sb, size_t extra)
 {
@@ -75,12 +81,14 @@ void strbuf_grow(struct strbuf *sb, size_t extra)
         exit(1);
     }
     sb->alloc += extra;
-
+     
 }
 void strbuf_add(struct strbuf *sb, const void *data, size_t len)
 {
     if(len+1>sb->alloc-sb->len)
+    {
     strbuf_grow(sb,len);
+    }
     if(sb->buf==NULL)
     {
         fprintf(stderr,"NULL");
@@ -103,10 +111,11 @@ void strbuf_addstr(struct strbuf *sb, const char *s)
 void strbuf_addbuf(struct strbuf *sb, const struct strbuf *sb2)
 {
     strbuf_add(sb,sb2->buf,sb2->len);
+    
 }
 void strbuf_setlen(struct strbuf *sb, size_t len)
 {
-    
+    strbuf_release(sb);
     strbuf_init(sb,len+1);
     sb->len = len;
     sb->buf[len]='\0';
@@ -288,11 +297,6 @@ if(target_str == NULL || str == NULL)
      }
 
 }
-    
-  
-    
-
-
 char* strbuf_get_mid_buf(char* target_buf, int begin, int end, int len)
 {
    int ilen = end - begin;
@@ -308,5 +312,6 @@ char* strbuf_get_mid_buf(char* target_buf, int begin, int end, int len)
         count++;
    }
    istr[count] = '\0';
+   
     return istr;
 }
