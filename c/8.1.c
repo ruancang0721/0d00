@@ -18,4 +18,4 @@ int main()
     }
     printf("有%d个字符",count);
     return 0;
-      }
+    }

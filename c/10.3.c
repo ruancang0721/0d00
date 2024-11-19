@@ -15,6 +15,6 @@ int main()
     int arr[10]={1,2,3,4,5,6,7,8,9,10};
     
     c = max(arr);
-    printf("%d",c);
+    printf("%d\n",c);
     return 0;
 }

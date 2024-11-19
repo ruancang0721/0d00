@@ -7,6 +7,5 @@ int main()
     scanf("%f", &a);
     printf("fixed-point notation: %f\n",a);
     printf("exponent notation: %e\n",a);
-    printf("p notation: %p",&a);
     return 0;
 }

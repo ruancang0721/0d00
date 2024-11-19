@@ -4,7 +4,6 @@ int main()
 {
     char a[100]={0};
     char b[100]={0};
-    
     scanf("%s",a);
     scanf("%s",b);
     int m=strlen(a);
@@ -19,10 +18,5 @@ int main()
     for(int i=0;i<n-1;i++)
     printf(" ");
     printf("%d",n);
-
-
-
-
-
     return 0;
 }
