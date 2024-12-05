@@ -17,4 +17,16 @@ struct ListNode* reverseList(struct ListNode* head) {
       pre=temp;
     }
     return pre;
-}}
+}
+//////////////////////////////////////////////////
+struct ListNode* reverse(struct ListNode* pre,struct ListNode* cur)
+ {
+    if(!cur)
+        return pre;
+    struct ListNode* temp = cur->next;
+    cur->next = pre;
+    return reverse(cur,temp);
+ }
+struct ListNode* reverseList(struct ListNode* head) {
+    return reverse(NULL,head);
+}
