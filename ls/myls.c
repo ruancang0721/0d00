@@ -5,49 +5,70 @@
 #include<pthread.h>
 #include<dirent.h>
 #include<sys/stat.h>
+#include<sys/types.h>
 
 
 
-void read_dir(char*dir)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int main(int argc,char * argv[])
 {
-    char path[256];
     DIR* dp;
-    struct dirent * dirp;
-    dp = opendir(dir);
-    while((dirp =readdir(dp))!=NULL)
+    struct dirent* dirp;
+    char path[256]={0};
+     if(argc==1)
     {
-        sprintf(path,"%s/%s",dir,dirp->d_name);
-        isfile(path);
-    }
-    closedir(dp);
+        strcpy(path,".");
 
-    
-}
-void isfile(char* name)
-{
-    struct stat st;
-    int ret = stat(name,&st);
-    if(ret == -1)
+    }
+    dp = opendir(path);
+    if(dp==NULL)
     {
-        perror("stat");
-        return;
+        perror("opendir");
+        exit(1);
     }
-    if(S_ISDIR(st.st_mode))
-    {
-           read_dir(name);
-    }
-    printf("%s\t%ld\n",name,st.st_size);
-}
 
-int main(int argc,char* argv[])
-{
-
-   if(argc==1)
+   
+   while((dirp=readdir(dp))!=NULL)
    {
-    isfile(".");
+      printf("%s\n",dirp->d_name);
    }
-   else{
-    isfile(argv[1]);
-   }
+   closedir(dp);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     return 0;
 }
