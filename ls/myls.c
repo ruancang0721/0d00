@@ -52,23 +52,6 @@ int main(int argc,char * argv[])
       printf("%s\n",dirp->d_name);
    }
    closedir(dp);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//111;
     return 0;
 }
