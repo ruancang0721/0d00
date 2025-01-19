@@ -6,52 +6,40 @@
 #include<dirent.h>
 #include<sys/stat.h>
 #include<sys/types.h>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-int main(int argc,char * argv[])
+void ls(char * path)
 {
-    DIR* dp;
-    struct dirent* dirp;
-    char path[256]={0};
-     if(argc==1)
+    DIR * dir = opendir(path);
+    if(dir == NULL)
     {
-        strcpy(path,".");
-
+        perror("open error");
+        return;
     }
-    dp = opendir(path);
-    if(dp==NULL)
+      struct dirent * ptr;
+      while((ptr = readdir(dir))!=NULL)
+      {
+        if(ptr->d_name[0]!='.')
+      {
+       
+        printf("%s\n",ptr->d_name);
+      }
+      
+      }
+  
+
+
+    closedir(dir);
+}
+
+int main(int argc,char* argv[])
+{
+    char *path = ".";
+
+
+
+    if(argc == 2)
     {
-        perror("opendir");
-        exit(1);
+        path = argv[1];
     }
-
-   
-   while((dirp=readdir(dp))!=NULL)
-   {
-      printf("%s\n",dirp->d_name);
-   }
-   closedir(dp);
-//111;
+    ls(path);
     return 0;
 }
