@@ -29,6 +29,10 @@ void ls(char* path,Options* opts,int ll)
         return;
        }
        struct dirent *ent;
+               filei* files = NULL;
+        size_t count =0;
+        size_t n=0;
+        long long totalblock=0;
        while((ent = readdir(dir))!=NULL)
        {
         if((opts->a!=1)&&ent->d_name[0]=='.')
@@ -37,13 +41,30 @@ void ls(char* path,Options* opts,int ll)
         }
         char fullpath[1024];
         snprintf(fullpath,1024,"%s/%s",path,ent->d_name);
-        struct stat st;
-        if(lstat(fullpath,&st)<0)
+
+        filei file;
+        if(lstat(fullpath,&file.st)<0)
         {
           perror("lstat error");
           continue;
         }
+        file.name = ent->d_name;
+        if(count>=n)
+        {
+          n+=10;
+          files = realloc(files,n*sizeof(filei));
+        }
+        files[count++]=file;
+        totalblock +=file.st.st_blocks;
+        
+        
 
+
+       }
+       closedir(dir);
+       if(opt->t)
+       {
+        qsort(files,count,)
        }
 
 
