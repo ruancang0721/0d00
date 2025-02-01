@@ -20,6 +20,23 @@ typedef struct{
   char* name;
   struct stat st;
 }filei;
+int comparetime1(const void*a,const void*b)
+{
+  return ((filei*)a)->st.st_mtime-((filei*)b)->st.st_mtime;
+}
+int comparetime2(const void*a,const void*b)
+{
+  return ((filei*)b)->st.st_mtime-((filei*)a)->st.st_mtime;
+}
+int compareshunxu(const void *a,const void *b)
+{
+  return strcmp(((filei*)a)->name,((filei*)b)->name);
+}
+int comparenixu(const void *a,const void *b)
+{
+  return -compareshunxu(a,b);
+}
+
 void ls(char* path,Options* opts,int ll)
 {
     DIR * dir = opendir(path);
@@ -62,9 +79,25 @@ void ls(char* path,Options* opts,int ll)
 
        }
        closedir(dir);
-       if(opt->t)
+       if(opts->t)
        {
-        qsort(files,count,)
+        if(opts->r)
+        {qsort(files,count,sizeof(filei),comparetime1);
+        }
+        else{
+          qsort(files,count,sizeof(filei),comparetime2);
+        }
+       }
+       else
+       {
+        if(opts->r)
+        {
+          qsort(files,count,sizeof(filei),comparenixu);
+        }
+        else{
+          qsort(files,count,sizeof(filei),compareshunxu);
+        }
+       }
        }
 
 
