@@ -37,6 +37,10 @@ int comparenixu(const void *a,const void *b)
   return -compareshunxu(a,b);
 }
 
+void lsprint(filei *file,Options* opts,int ll)
+{
+  
+}
 void ls(char* path,Options* opts,int ll)
 {
     DIR * dir = opendir(path);
@@ -73,11 +77,8 @@ void ls(char* path,Options* opts,int ll)
         }
         files[count++]=file;
         totalblock +=file.st.st_blocks;
-        
-        
+               }
 
-
-       }
        closedir(dir);
        if(opts->t)
        {
@@ -98,13 +99,9 @@ void ls(char* path,Options* opts,int ll)
           qsort(files,count,sizeof(filei),compareshunxu);
         }
        }
+
        }
 
-
-
-
-    closedir(dir);
-}
 
 int main(int argc,char* argv[])
 {
@@ -167,6 +164,7 @@ int main(int argc,char* argv[])
         }
       }
      }
+
 
 
     return 0;
