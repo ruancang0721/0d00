@@ -36,10 +36,116 @@ int comparenixu(const void *a,const void *b)
 {
   return -compareshunxu(a,b);
 }
-
+void  mode(char* str,mode_t mode)
+{
+  if(S_ISDIR(mode))
+  {
+   strcat(str,"d");
+  }
+  else if(S_ISLNK(mode))
+  {
+    strcat(str,"l");
+  }
+  else if(S_ISBLK(mode))
+  {
+    strcat(str,"b");
+  }
+  else if(S_ISCHR(mode))
+  {
+    strcat(str,"c");
+  }
+  else if(S_ISFIFO(mode))
+  {
+    strcat(str,"p");
+  }
+  else if(S_ISSOCK(mode))
+  {
+    strcat(str,"s");
+  }
+  else
+  {
+    strcat(str,"-");
+  }
+  if(mode&S_IRUSR)
+  {
+    strcat(str,"r");
+  }
+  else
+  {
+    strcat(str,"-");
+  }
+  if(mode&S_IWUSR)
+  {
+    strcat(str,"w");
+  }
+  else{
+    strcat(str,"-");
+  }
+  if(mode&S_IXUSR)
+  {
+    strcat(str,"x");
+  }
+  else{
+    strcat(str,"-");
+  }
+  if(mode&S_IRGRP)
+  {
+    strcat(str,"r");
+  }
+  else{
+    strcat(str,"-");
+  }
+  if(mode&S_IWGRP)
+  {
+    strcat(str,"w");
+  }
+  else{
+    strcat(str,"-");
+  }
+  if(mode&S_IXGRP)
+  {
+    strcat(str,"x");
+  }
+  else{
+    strcat(str,"-");
+  }
+  if(mode&S_IROTH)
+  {
+    strcat(str,"r");
+  }
+  else{
+    strcat(str,"-");
+  }
+  if(mode&S_IWOTH)
+  {
+    strcat(str,"w");
+  }
+  else{
+    strcat(str,"-");
+  }
+  if(mode&S_IXOTH)
+  {
+    strcat(str,"x");
+  }
+  else{
+    strcat(str,"-");
+  }
+  
+}
 void lsprint(filei *file,Options* opts,int ll)
 {
-  
+  if(opts->i)
+  {
+    printf("%s\n",file->st.st_ino);
+  }
+  if(opts->s)
+  {
+    printf("%3d",file->st.st_blocks);
+  }
+  if(opts->l)
+  {
+    char mode[11];
+  }
 }
 void ls(char* path,Options* opts,int ll)
 {
