@@ -36,7 +36,7 @@ int comparenixu(const void *a,const void *b)
 {
   return -compareshunxu(a,b);
 }
-void  mode(char* str,mode_t mode)
+void  modescore(char* str,mode_t mode)
 {
   if(S_ISDIR(mode))
   {
@@ -130,6 +130,7 @@ void  mode(char* str,mode_t mode)
   else{
     strcat(str,"-");
   }
+
   
 }
 void lsprint(filei *file,Options* opts,int ll)
@@ -145,6 +146,11 @@ void lsprint(filei *file,Options* opts,int ll)
   if(opts->l)
   {
     char mode[11];
+    mode[0]='\0';
+    modescore(mode,file->st.st_mode);
+    printf("%s",mode);
+
+
   }
 }
 void ls(char* path,Options* opts,int ll)
