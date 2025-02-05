@@ -133,15 +133,15 @@ void  modescore(char* str,mode_t mode)
 
   
 }
-void lsprint(filei *file,Options* opts,int ll)
+void lsprint(filei *file,Options* opts)
 {
   if(opts->i)
   {
-    printf("%s\n",file->st.st_ino);
+    printf("%ld\n",file->st.st_ino);
   }
   if(opts->s)
   {
-    printf("%3d",file->st.st_blocks);
+    printf("%3ld",file->st.st_blocks);
   }
   if(opts->l)
   {
@@ -153,7 +153,7 @@ void lsprint(filei *file,Options* opts,int ll)
 
   }
 }
-void ls(char* path,Options* opts,int ll)
+void ls(char* path,Options* opts)
 {
     DIR * dir = opendir(path);
        if(dir == NULL)
@@ -211,13 +211,15 @@ void ls(char* path,Options* opts,int ll)
           qsort(files,count,sizeof(filei),compareshunxu);
         }
        }
+       lsprint(files,opts);
+       free(files);
 
        }
 
 
 int main(int argc,char* argv[])
 {
-     Options options;
+     Options options = {0};
      int opt;
      while((opt=getopt(argc,argv,"alRrtsi"))!=-1)
      {
@@ -259,7 +261,7 @@ int main(int argc,char* argv[])
      }
      if(dirnum == 0)
      {
-        ls(".",&options,0);
+        ls(".",&options);
      }
      else{
       for(int i=0;i<dirnum;i++)
@@ -269,7 +271,7 @@ int main(int argc,char* argv[])
           printf("%s:\n",dir[i]);
 
         }
-        ls(dir[i],&options,0);
+        ls(dir[i],&options);
         if(dirnum>1&&i!=dirnum-1)
         {
           printf("\n");
