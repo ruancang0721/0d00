@@ -7,6 +7,9 @@
 #include<sys/stat.h>
 #include<sys/types.h>
 #include<getopt.h>
+#include<pwd.h>
+#include<grp.h>
+#include<time.h>
 typedef struct{
   int a;
   int l;
@@ -18,6 +21,7 @@ typedef struct{
 }Options;
 typedef struct{
   char* name;
+  char* fpath;
   struct stat st;
 }filei;
 int comparetime1(const void*a,const void*b)
@@ -131,7 +135,6 @@ void  modescore(char* str,mode_t mode)
     strcat(str,"-");
   }
 
-  
 }
 void lsprint(filei *file,Options* opts)
 {
@@ -149,9 +152,44 @@ void lsprint(filei *file,Options* opts)
     mode[0]='\0';
     modescore(mode,file->st.st_mode);
     printf("%s",mode);
-
+    printf("%2ld",file->st.st_nlink);
+    struct passwd * UID =getpwuid(file->st.st_uid);
+    struct group * GID =getgrgid(file->st.st_gid);
+    printf(" %s %s",UID->pw_name,GID->gr_name);
+    printf("%6ld",file->st.st_size);
+  struct tm* timeinfo = localtime(&file->st.st_mtime);
+    printf(" %2d月  %2d  %02d:%02d",timeinfo->tm_mon+1,timeinfo->tm_mday,timeinfo->tm_hour,timeinfo->tm_min);
+     printf(" %s",file->name);
+    if(opts->l&&S_ISLNK(file->st.st_mode))
+    {
+      char link[1024];
+      int len = readlink(file->name,link,1023);
+         link[len] = '\0';
+         printf(" -> %s",link);
+    }
 
   }
+       
+      printf("\n");
+}
+void ls(char* path,Options* opts);
+void process(char * path,Options* opts)
+{
+  struct stat st;
+  if(lstat(path,&st)<0)
+  {
+    perror("lstat error");
+    return;
+  }
+  if(!S_ISDIR(st.st_mode))
+  {
+    filei file;
+    file.name = path;
+    file.st = st;
+    lsprint(&file,opts);
+    return;
+  }
+  ls(path,opts);
 }
 void ls(char* path,Options* opts)
 {
@@ -162,7 +200,7 @@ void ls(char* path,Options* opts)
         return;
        }
        struct dirent *ent;
-               filei* files = NULL;
+        filei* files = NULL;
         size_t count =0;
         size_t n=0;
         long long totalblock=0;
@@ -176,6 +214,7 @@ void ls(char* path,Options* opts)
         snprintf(fullpath,1024,"%s/%s",path,ent->d_name);
 
         filei file;
+        file.fpath = fullpath;
         if(lstat(fullpath,&file.st)<0)
         {
           perror("lstat error");
@@ -211,12 +250,32 @@ void ls(char* path,Options* opts)
           qsort(files,count,sizeof(filei),compareshunxu);
         }
        }
-       lsprint(files,opts);
-       free(files);
-
+       if(opts->l)
+       {
+        printf("total %lld\n",totalblock);
        }
+       for(int i=0;i<count;i++)
+       {
+        lsprint(&files[i],opts);
+       }
+   if(opts->R)
+   {
+    for(int i=0;i<count;i++)
+    {
+      if(S_ISDIR(files[i].st.st_mode)&&strcmp(files[i].name,".")&&strcmp(files[i].name,".."))
+      {
+        char newpath[1024];
+        snprintf(newpath,1024,"%s/%s",path,files[i].name);
+        printf("%s:\n",newpath);
+        process(newpath,opts);
+      }
 
+    }
+   }
 
+   free(files);
+
+}
 int main(int argc,char* argv[])
 {
      Options options = {0};
