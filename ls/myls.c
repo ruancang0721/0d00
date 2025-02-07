@@ -140,7 +140,7 @@ void lsprint(filei *file,Options* opts)
 {
   if(opts->i)
   {
-    printf("%ld\n",file->st.st_ino);
+    printf("%ld ",file->st.st_ino);
   }
   if(opts->s)
   {
@@ -159,46 +159,63 @@ void lsprint(filei *file,Options* opts)
     printf("%6ld",file->st.st_size);
   struct tm* timeinfo = localtime(&file->st.st_mtime);
     printf(" %2d月  %2d  %02d:%02d",timeinfo->tm_mon+1,timeinfo->tm_mday,timeinfo->tm_hour,timeinfo->tm_min);
-     printf(" %s",file->name);
-    if(opts->l&&S_ISLNK(file->st.st_mode))
+     
+  }
+  printf(" %s",file->name);
+      if(opts->l&&S_ISLNK(file->st.st_mode))
     {
       char link[1024];
       int len = readlink(file->name,link,1023);
          link[len] = '\0';
          printf(" -> %s",link);
     }
-
-  }
        
       printf("\n");
 }
-void ls(char* path,Options* opts);
-void process(char * path,Options* opts)
-{
-  struct stat st;
-  if(lstat(path,&st)<0)
+void ls(char* path,Options* opts,int re);
+ void process(char * path,Options* opts,int re)
+ {
+  DIR* dir = opendir(path);
+  if(dir==NULL)
   {
-    perror("lstat error");
+    perror("opendir error");
     return;
   }
-  if(!S_ISDIR(st.st_mode))
-  {
+   struct stat st;
+   if(stat(path,&st)==-1)
+   {
+    perror("stat error");
+    return;
+   }
+   if(!S_ISDIR(st.st_mode))
+   {
     filei file;
     file.name = path;
     file.st = st;
     lsprint(&file,opts);
     return;
-  }
-  ls(path,opts);
-}
-void ls(char* path,Options* opts)
+    
+
+   }
+   if(re)
+   {
+   printf("\n%s:\n",path);
+   }
+   ls(path,opts,re);
+
+
+ }
+
+void ls(char* path,Options* opts,int re)
 {
     DIR * dir = opendir(path);
        if(dir == NULL)
        {
         perror("opendir error");
-        return;
+        
+        
        }
+   
        struct dirent *ent;
         filei* files = NULL;
         size_t count =0;
@@ -211,27 +228,38 @@ void ls(char* path,Options* opts)
           continue;
         }
         char fullpath[1024];
-        snprintf(fullpath,1024,"%s/%s",path,ent->d_name);
+        int len = strlen(path);
+        if(path[len-1]!='/')
+        {
+          snprintf(fullpath,1024,"%s/%s",path,ent->d_name);
+        }
+        else
+        {
+            snprintf(fullpath,1024,"%s%s",path,ent->d_name);
+        }
+        
 
         filei file;
         file.fpath = fullpath;
-        if(lstat(fullpath,&file.st)<0)
+        if(lstat(fullpath,&file.st)==-1)
         {
           perror("lstat error");
           continue;
         }
-        file.name = ent->d_name;
+        file.name = strdup(ent->d_name);
         if(count>=n)
         {
-          n+=10;
+          n= n?n*2:128;
           files = realloc(files,n*sizeof(filei));
         }
         files[count++]=file;
         totalblock +=file.st.st_blocks;
                }
-
+      
        closedir(dir);
-       if(opts->t)
+
+
+              if(opts->t)
        {
         if(opts->r)
         {qsort(files,count,sizeof(filei),comparetime1);
@@ -254,24 +282,35 @@ void ls(char* path,Options* opts)
        {
         printf("total %lld\n",totalblock);
        }
+
        for(int i=0;i<count;i++)
        {
+      
         lsprint(&files[i],opts);
+        
        }
-   if(opts->R)
-   {
+    if(opts->R)
+    {
+      for(int i=0;i<count;i++)
+      {
+        if(S_ISDIR(files[i].st.st_mode)&&(strcmp(files[i].name,".")!=0)&&(strcmp(files[i].name,"..")!=0))
+          {
+            char newpath[1024];
+            sprintf(newpath,"%s/%s",path,files[i].name);
+            process(newpath,opts,1);
+          }
+
+      }
+    }
     for(int i=0;i<count;i++)
     {
-      if(S_ISDIR(files[i].st.st_mode)&&strcmp(files[i].name,".")&&strcmp(files[i].name,".."))
-      {
-        char newpath[1024];
-        snprintf(newpath,1024,"%s/%s",path,files[i].name);
-        printf("%s:\n",newpath);
-        process(newpath,opts);
-      }
-
+      free(files[i].name);
     }
-   }
+
+  
+
+    
+   
 
    free(files);
 
@@ -320,7 +359,7 @@ int main(int argc,char* argv[])
      }
      if(dirnum == 0)
      {
-        ls(".",&options);
+        process(".",&options,0);
      }
      else{
       for(int i=0;i<dirnum;i++)
@@ -330,7 +369,7 @@ int main(int argc,char* argv[])
           printf("%s:\n",dir[i]);
 
         }
-        ls(dir[i],&options);
+        process(dir[i],&options,0);
         if(dirnum>1&&i!=dirnum-1)
         {
           printf("\n");
