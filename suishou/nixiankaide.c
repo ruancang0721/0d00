@@ -6,24 +6,33 @@
 #include <string.h>
 int main(int argc, char const *argv[])
 {
-    printf("fork1\n");
-    pid_t pid = fork();
-    if(pid == -1)
-    {
-        perror("fork");
-        exit(1);
-    
-    }
-    else if(pid == 0)
-    {
-        printf("child1\n");
-    }
-    else if(pid > 0)
-    {
-        printf("parent1\n");
-        printf("child1 = %d\n",pid);
 
-    }
-    printf("end\n");
+pid_t wpid,pid ;
+int status;
+
+
+int i=0;
+
+
+pid = fork();
+if(pid ==0)
+{
+  printf("child,my pid is %d,sleep 10s",getpid());
+  sleep(10);
+}
+else if(pid>0)
+{
+  wpid = wait(&status);
+  if(wpid == -1)
+  {
+    perror("wait error");
+    exit(1);
+  }
+  printf("parent,my pid is %d,child pid is %d,child status is %d",getpid(),wpid,status);
+}
+else{
+  perror("fork error");
+  return 1;
+}
     return 0;
 }
