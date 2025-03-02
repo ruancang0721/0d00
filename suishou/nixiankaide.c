@@ -8,38 +8,30 @@
 int main(int argc, char const *argv[])
 {
 
-pid_t wpid,pid ;
-int i;
-for(i=0;i<5;i++)
+pid_t pid;
+int fd[2];
+char * str = "hello pipe\n";
+char buf[1024];
+int ret = pipe(fd);
+if(ret<0)
 {
-  pid = fork();
-  if(pid==0)
-  {
-       break;
-  }
+  perror("pipe error");
+  exit(1);
 }
-if(5==i)
-{
-    while((wpid = waitpid(-1,NULL,WNOHANG))!=-1)
-    {
-      if(wpid >0)
-      {
-        printf("wait child %d\n",wpid);
-      }
-      else if(wpid == 0)
-      {
-        sleep(1);
-      }
-    }
-
-
-
-}
-else
-{
-  sleep(i);
-  printf(" woshizijincheng %d\n",getpid());
-}
+ pid = fork();
+ if(pid>0)
+ {
+  close(fd[0]);
+  write(fd[1],str,strlen(str));
+  close(fd[1]);
+  sleep(1);
+ }
+ else{
+  close(fd[1]);
+  ret = read(fd[0],buf,sizeof(buf));
+  write(STDOUT_FILENO,buf,ret);
+  close(fd[0]);
+ }
 
     return 0;
 }
