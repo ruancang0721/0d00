@@ -12,7 +12,21 @@
 void mysh_loop()
 {
     char * line;
-    
+
+
+
+
+
+    do{
+
+
+        char path[100];
+        getcwd(path,100);
+        char now[200] = "[myshell";
+        strcat(now,path);
+        strcat(now,"]$");
+        printf("%s",now);
+    }
 }
 int main(int argc, char *argv[])
 {
