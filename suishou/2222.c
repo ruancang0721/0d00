@@ -9,6 +9,14 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <signal.h>
+#include <errno.h>
+#include <dirent.h>
+#include <fcntl.h>
+#include <sys/wait.h>
+
+
+
 char * cmd[] = 
 {
   
@@ -40,6 +48,29 @@ int sh_cd(char ** args)
 int sh_exit(char ** args)
 {
   return 0;
+}
+int sh_launch(char ** args)
+{
+  pid_t pid,wpid;
+  int status;
+  pid = fork();
+  if(pid ==0)
+  {
+    if(execvp(args[0],args)==-1)
+    {
+      perror("execvp");
+
+    }
+    exit(0);
+  }
+  else{
+     do
+     {
+        wpid = waitpid(pid,&status,WUNTRACED);
+     } while (!WIFEXITED(status) &&!WIFSIGNALED(status));
+     
+  }
+  return 1;
 }
 char * mysh_read()
 {
@@ -96,7 +127,7 @@ int mysh_execute(char ** args)
 
    }
 
-
+return sh_launch(args);
 
 
 
