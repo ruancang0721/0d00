@@ -66,7 +66,7 @@ int cmd_num(char** args)
 char * mysh_read()
 {
    char * line = NULL;
-  ssize_t bufsize;
+  
   getline(&line,&bufsize,stdin);
   return line;
 }
